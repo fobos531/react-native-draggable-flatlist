@@ -1,33 +1,14 @@
-import React, {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { ListRenderItem, FlatListProps, LayoutChangeEvent } from "react-native";
-import {
-  FlatList,
-  Gesture,
-  GestureDetector,
-} from "react-native-gesture-handler";
-import Animated, {
-  runOnJS,
-  useAnimatedReaction,
-  useAnimatedScrollHandler,
-  useSharedValue,
-  withSpring,
-} from "react-native-reanimated";
+import { FlatList, Gesture, GestureDetector } from "react-native-gesture-handler";
+import Animated, { runOnJS, useAnimatedReaction, useAnimatedScrollHandler, useSharedValue, withSpring } from "react-native-reanimated";
 import CellRendererComponent from "./CellRendererComponent";
 import { DEFAULT_PROPS, isWeb } from "../constants";
 import PlaceholderItem from "./PlaceholderItem";
 import RowItem from "./RowItem";
 import { DraggableFlatListProps } from "../types";
 import PropsProvider from "../context/propsContext";
-import AnimatedValueProvider, {
-  useAnimatedValues,
-} from "../context/animatedValueContext";
+import AnimatedValueProvider, { useAnimatedValues } from "../context/animatedValueContext";
 import RefProvider, { useRefs } from "../context/refContext";
 import DraggableFlatListProvider from "../context/draggableFlatListContext";
 import { useAutoScroll } from "../hooks/useAutoScroll";
@@ -42,24 +23,12 @@ type RNGHFlatListProps<T> = Animated.AnimateProps<
   }
 >;
 
-type OnViewableItemsChangedCallback<T> = Exclude<
-  FlatListProps<T>["onViewableItemsChanged"],
-  undefined | null
->;
+type OnViewableItemsChangedCallback<T> = Exclude<FlatListProps<T>["onViewableItemsChanged"], undefined | null>;
 
-const AnimatedFlatList = (Animated.createAnimatedComponent(
-  FlatList
-) as unknown) as <T>(props: RNGHFlatListProps<T>) => React.ReactElement;
+const AnimatedFlatList = (Animated.createAnimatedComponent(FlatList) as unknown) as <T>(props: RNGHFlatListProps<T>) => React.ReactElement;
 
 function DraggableFlatListInner<T>(props: DraggableFlatListProps<T>) {
-  const {
-    cellDataRef,
-    containerRef,
-    flatlistRef,
-    keyToIndexRef,
-    propsRef,
-    animationConfigRef,
-  } = useRefs<T>();
+  const { cellDataRef, containerRef, flatlistRef, keyToIndexRef, propsRef, animationConfigRef } = useRefs<T>();
   const {
     activeCellOffset,
     activeCellSize,
@@ -95,9 +64,7 @@ function DraggableFlatListInner<T>(props: DraggableFlatListProps<T>) {
   } = props;
 
   let [activeKey, setActiveKey] = useState<string | null>(null);
-  const [layoutAnimationDisabled, setLayoutAnimationDisabled] = useState(
-    !propsRef.current.enableLayoutAnimationExperimental
-  );
+  const [layoutAnimationDisabled, setLayoutAnimationDisabled] = useState(false);
 
   const keyExtractor = useStableCallback((item: T, index: number) => {
     if (!props.keyExtractor) {
@@ -107,9 +74,7 @@ function DraggableFlatListInner<T>(props: DraggableFlatListProps<T>) {
   });
 
   const dataRef = useRef(props.data);
-  const dataHasChanged =
-    dataRef.current.map(keyExtractor).join("") !==
-    props.data.map(keyExtractor).join("");
+  const dataHasChanged = dataRef.current.map(keyExtractor).join("") !== props.data.map(keyExtractor).join("");
   dataRef.current = props.data;
   if (dataHasChanged) {
     // When data changes make sure `activeKey` is nulled out in the same render pass
@@ -117,7 +82,6 @@ function DraggableFlatListInner<T>(props: DraggableFlatListProps<T>) {
   }
 
   useEffect(() => {
-    if (!propsRef.current.enableLayoutAnimationExperimental) return;
     if (activeKey) {
       setLayoutAnimationDisabled(true);
     } else {
@@ -154,9 +118,7 @@ function DraggableFlatListInner<T>(props: DraggableFlatListProps<T>) {
     }
   });
 
-  const onContainerLayout = ({
-    nativeEvent: { layout },
-  }: LayoutChangeEvent) => {
+  const onContainerLayout = ({ nativeEvent: { layout } }: LayoutChangeEvent) => {
     const { width, height } = layout;
     containerSize.value = props.horizontal ? width : height;
     props.onContainerLayout?.({ layout, containerRef });
@@ -193,15 +155,7 @@ function DraggableFlatListInner<T>(props: DraggableFlatListProps<T>) {
         keyToIndexRef.current.set(key, index);
       }
 
-      return (
-        <RowItem
-          item={item}
-          itemKey={key}
-          renderItem={props.renderItem}
-          drag={drag}
-          extraData={props.extraData}
-        />
-      );
+      return <RowItem item={item} itemKey={key} renderItem={props.renderItem} drag={drag} extraData={props.extraData} />;
     },
     [props.renderItem, props.extraData, drag, keyExtractor]
   );
@@ -210,20 +164,18 @@ function DraggableFlatListInner<T>(props: DraggableFlatListProps<T>) {
     props.onRelease?.(index);
   });
 
-  const onDragEnd = useStableCallback(
-    ({ from, to }: { from: number; to: number }) => {
-      const { onDragEnd, data } = props;
+  const onDragEnd = useStableCallback(({ from, to }: { from: number; to: number }) => {
+    const { onDragEnd, data } = props;
 
-      const newData = [...data];
-      if (from !== to) {
-        newData.splice(from, 1);
-        newData.splice(to, 0, data[from]);
-      }
-
-      onDragEnd?.({ from, to, data: newData });
-      reset();
+    const newData = [...data];
+    if (from !== to) {
+      newData.splice(from, 1);
+      newData.splice(to, 0, data[from]);
     }
-  );
+
+    onDragEnd?.({ from, to, data: newData });
+    reset();
+  });
 
   const onPlaceholderIndexChange = useStableCallback((index: number) => {
     props.onPlaceholderIndexChange?.(index);
@@ -272,18 +224,14 @@ function DraggableFlatListInner<T>(props: DraggableFlatListProps<T>) {
     .onUpdate((evt) => {
       if (gestureDisabled.value) return;
       panGestureState.value = evt.state;
-      const translation = horizontalAnim.value
-        ? evt.translationX
-        : evt.translationY;
+      const translation = horizontalAnim.value ? evt.translationX : evt.translationY;
       touchTranslate.value = translation;
     })
     .onEnd((evt) => {
       if (gestureDisabled.value) return;
       // Set touch val to current translate val
       isTouchActiveNative.value = false;
-      const translation = horizontalAnim.value
-        ? evt.translationX
-        : evt.translationY;
+      const translation = horizontalAnim.value ? evt.translationX : evt.translationY;
 
       touchTranslate.value = translation + autoScrollDistance.value;
       panGestureState.value = evt.state;
@@ -293,17 +241,13 @@ function DraggableFlatListInner<T>(props: DraggableFlatListProps<T>) {
       disabled.value = true;
       runOnJS(onRelease)(activeIndexAnim.value);
       const springTo = placeholderOffset.value - activeCellOffset.value;
-      touchTranslate.value = withSpring(
-        springTo,
-        animationConfigRef.value,
-        () => {
-          runOnJS(onDragEnd)({
-            from: activeIndexAnim.value,
-            to: spacerIndexAnim.value,
-          });
-          disabled.value = false;
-        }
-      );
+      touchTranslate.value = withSpring(springTo, animationConfigRef.value, () => {
+        runOnJS(onDragEnd)({
+          from: activeIndexAnim.value,
+          to: spacerIndexAnim.value,
+        });
+        disabled.value = false;
+      });
     })
     .onTouchesDown(() => {
       runOnJS(onContainerTouchStart)();
@@ -316,11 +260,10 @@ function DraggableFlatListInner<T>(props: DraggableFlatListProps<T>) {
 
   if (dragHitSlop) panGesture.hitSlop(dragHitSlop);
   if (activationDistanceProp) {
-    const activeOffset = [-activationDistanceProp, activationDistanceProp];
     if (props.horizontal) {
-      panGesture.activeOffsetX(activeOffset);
+      panGesture.activeOffsetX([-activationDistanceProp, activationDistanceProp]);
     } else {
-      panGesture.activeOffsetY(activeOffset);
+      panGesture.activeOffsetY([-activationDistanceProp, activationDistanceProp]);
     }
   }
 
@@ -331,9 +274,7 @@ function DraggableFlatListInner<T>(props: DraggableFlatListProps<T>) {
   const scrollHandler = useAnimatedScrollHandler(
     {
       onScroll: (evt) => {
-        scrollOffset.value = horizontalAnim.value
-          ? evt.contentOffset.x
-          : evt.contentOffset.y;
+        scrollOffset.value = horizontalAnim.value ? evt.contentOffset.x : evt.contentOffset.y;
         runOnJS(onScroll)(scrollOffset.value);
       },
     },
@@ -342,9 +283,7 @@ function DraggableFlatListInner<T>(props: DraggableFlatListProps<T>) {
 
   useAutoScroll();
 
-  const onViewableItemsChanged = useStableCallback<
-    OnViewableItemsChangedCallback<T>
-  >((info) => {
+  const onViewableItemsChanged = useStableCallback<OnViewableItemsChangedCallback<T>>((info) => {
     const viewableIndices = info.viewableItems
       .filter((item) => item.isViewable)
       .map((item) => item.index)
@@ -365,14 +304,8 @@ function DraggableFlatListInner<T>(props: DraggableFlatListProps<T>) {
       layoutAnimationDisabled={layoutAnimationDisabled}
     >
       <GestureDetector gesture={panGesture}>
-        <Animated.View
-          style={props.containerStyle}
-          ref={containerRef}
-          onLayout={onContainerLayout}
-        >
-          {props.renderPlaceholder && (
-            <PlaceholderItem renderPlaceholder={props.renderPlaceholder} />
-          )}
+        <Animated.View style={props.containerStyle} ref={containerRef} onLayout={onContainerLayout}>
+          {props.renderPlaceholder && <PlaceholderItem renderPlaceholder={props.renderPlaceholder} />}
           <AnimatedFlatList
             {...props}
             data={props.data}
@@ -390,10 +323,7 @@ function DraggableFlatListInner<T>(props: DraggableFlatListProps<T>) {
             removeClippedSubviews={false}
           />
           {!!props.onScrollOffsetChange && (
-            <ScrollOffsetListener
-              onScrollOffsetChange={props.onScrollOffsetChange}
-              scrollOffset={scrollOffset}
-            />
+            <ScrollOffsetListener onScrollOffsetChange={props.onScrollOffsetChange} scrollOffset={scrollOffset} />
           )}
         </Animated.View>
       </GestureDetector>
@@ -401,10 +331,7 @@ function DraggableFlatListInner<T>(props: DraggableFlatListProps<T>) {
   );
 }
 
-function DraggableFlatList<T>(
-  props: DraggableFlatListProps<T>,
-  ref?: React.ForwardedRef<FlatList<T>> | null
-) {
+function DraggableFlatList<T>(props: DraggableFlatListProps<T>, ref?: React.ForwardedRef<FlatList<T>> | null) {
   return (
     <PropsProvider {...props}>
       <AnimatedValueProvider>

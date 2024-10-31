@@ -1,16 +1,8 @@
 import React from "react";
-import {
-  FlatListProps,
-  LayoutChangeEvent,
-  StyleProp,
-  ViewStyle,
-} from "react-native";
+import { FlatListProps, LayoutChangeEvent, StyleProp, ViewStyle } from "react-native";
 import { useAnimatedValues } from "./context/animatedValueContext";
 import { FlatList } from "react-native-gesture-handler";
-import Animated, {
-  AnimateProps,
-  WithSpringConfig,
-} from "react-native-reanimated";
+import Animated, { AnimateProps, WithSpringConfig } from "react-native-reanimated";
 import { DEFAULT_PROPS } from "./constants";
 
 export type DragEndParams<T> = {
@@ -47,7 +39,6 @@ export type DraggableFlatListProps<T> = Modify<
     itemEnteringAnimation?: AnimateProps<Animated.View>["entering"];
     itemExitingAnimation?: AnimateProps<Animated.View>["exiting"];
     itemLayoutAnimation?: AnimateProps<Animated.View>["layout"];
-    enableLayoutAnimationExperimental?: boolean;
     onContainerLayout?: (params: {
       layout: LayoutChangeEvent["nativeEvent"]["layout"];
       containerRef: React.RefObject<Animated.View>;
@@ -55,10 +46,7 @@ export type DraggableFlatListProps<T> = Modify<
   } & Partial<DefaultProps>
 >;
 
-export type RenderPlaceholder<T> = (params: {
-  item: T;
-  index: number;
-}) => JSX.Element;
+export type RenderPlaceholder<T> = (params: { item: T; index: number }) => JSX.Element;
 
 export type RenderItemParams<T> = {
   item: T;
