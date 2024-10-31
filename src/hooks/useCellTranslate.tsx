@@ -27,10 +27,7 @@ export function useCellTranslate({ cellIndex, cellSize, cellOffset }: Params) {
 
   const translate = useDerivedValue(() => {
     const isActiveCell = cellIndex === activeIndexAnim.value;
-    const isOutsideViewableRange =
-      !isActiveCell &&
-      (cellIndex < viewableIndexMin.value ||
-        cellIndex > viewableIndexMax.value);
+    const isOutsideViewableRange = !isActiveCell && (cellIndex < viewableIndexMin.value || cellIndex > viewableIndexMax.value);
     if (!activeKey || activeIndexAnim.value < 0 || isOutsideViewableRange) {
       return 0;
     }
@@ -45,30 +42,18 @@ export function useCellTranslate({ cellIndex, cellSize, cellOffset }: Params) {
     let result = -1;
 
     if (isAfterActive) {
-      if (
-        hoverPlusActiveSize >= cellOffset.value &&
-        hoverPlusActiveSize < offsetPlusHalfSize
-      ) {
+      if (hoverPlusActiveSize >= cellOffset.value && hoverPlusActiveSize < offsetPlusHalfSize) {
         // bottom edge of active cell overlaps top half of current cell
         result = cellIndex - 1;
-      } else if (
-        hoverPlusActiveSize >= offsetPlusHalfSize &&
-        hoverPlusActiveSize < offsetPlusSize
-      ) {
+      } else if (hoverPlusActiveSize >= offsetPlusHalfSize && hoverPlusActiveSize < offsetPlusSize) {
         // bottom edge of active cell overlaps bottom half of current cell
         result = cellIndex;
       }
     } else if (isBeforeActive) {
-      if (
-        hoverOffset.value < offsetPlusSize &&
-        hoverOffset.value >= offsetPlusHalfSize
-      ) {
+      if (hoverOffset.value < offsetPlusSize && hoverOffset.value >= offsetPlusHalfSize) {
         // top edge of active cell overlaps bottom half of current cell
         result = cellIndex + 1;
-      } else if (
-        hoverOffset.value >= cellOffset.value &&
-        hoverOffset.value < offsetPlusHalfSize
-      ) {
+      } else if (hoverOffset.value >= cellOffset.value && hoverOffset.value < offsetPlusHalfSize) {
         // top edge of active cell overlaps top half of current cell
         result = cellIndex;
       }
@@ -79,9 +64,7 @@ export function useCellTranslate({ cellIndex, cellSize, cellOffset }: Params) {
     }
 
     if (spacerIndexAnim.value === cellIndex) {
-      const newPlaceholderOffset = isAfterActive
-        ? cellSize.value + (cellOffset.value - activeCellSize.value)
-        : cellOffset.value;
+      const newPlaceholderOffset = isAfterActive ? cellSize.value + (cellOffset.value - activeCellSize.value) : cellOffset.value;
       placeholderOffset.value = newPlaceholderOffset;
     }
 
@@ -93,15 +76,11 @@ export function useCellTranslate({ cellIndex, cellSize, cellOffset }: Params) {
     // Translate cell down if it is before active index and active cell has passed it.
     // Translate cell up if it is after the active index and active cell has passed it.
 
-    const shouldTranslate = isAfterActive
-      ? cellIndex <= spacerIndexAnim.value
-      : cellIndex >= spacerIndexAnim.value;
+    const shouldTranslate = isAfterActive ? cellIndex <= spacerIndexAnim.value : cellIndex >= spacerIndexAnim.value;
 
-    const translationAmt = shouldTranslate
-      ? activeCellSize.value * (isAfterActive ? -1 : 1)
-      : 0;
+    const translationAmt = shouldTranslate ? activeCellSize.value * (isAfterActive ? -1 : 1) : 0;
 
-    return withSpring(translationAmt, animationConfigRef.current);
+    return withSpring(translationAmt, animationConfigRef.value);
   }, [activeKey, cellIndex]);
 
   return translate;
